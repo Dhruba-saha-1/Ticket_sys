@@ -1,3 +1,65 @@
 {
-    "diagram": { "url":  "https://drive.google.com/file/d/13eKRBr-0M4_cjJZoVDFFNXz9J4yi4shc/view?usp=sharing"}
+  "sourcePlan": "Architecture/Plan/revised_plan.md",
+  "version": "1.2",
+  "driveFolder": {
+    "name": "Ticket_sys/Architecture/Diagrams",
+    "url": "https://drive.google.com/drive/folders/1fgixccHTe6STGdms9LsAaSMfbz9kwJFx?usp=sharing"
+  },
+  "diagram": {
+    "name": "ticketing-v1.2.drawio",
+    "pages": [
+      "1. System architecture",
+      "2. Product flow",
+      "3. Ticket lifecycle",
+      "4. Auth and authorization",
+      "5. Data model",
+      "6. Delivery (v1)"
+    ],
+    "local": "Architecture/Diagrams/ticketing-v1.2.drawio",
+    "url": "https://drive.google.com/file/d/1edm0lshbCSYTMhI-R1Laly6fCCS4SW1y/view?usp=sharing",
+    "drawio": "https://app.diagrams.net/#G1edm0lshbCSYTMhI-R1Laly6fCCS4SW1y"
+  },
+  "diagrams": {
+    "systemArchitecture": {
+      "name": "01-system-architecture.drawio",
+      "local": "Architecture/Diagrams/01-system-architecture.drawio",
+      "url": "https://drive.google.com/file/d/1dfnBsP3J00lLp_zlj0TEbmTtgLeG19tQ/view?usp=sharing",
+      "drawio": "https://app.diagrams.net/#G1dfnBsP3J00lLp_zlj0TEbmTtgLeG19tQ"
+    },
+    "productFlow": {
+      "name": "02-product-flow.drawio",
+      "local": "Architecture/Diagrams/02-product-flow.drawio",
+      "url": "https://drive.google.com/file/d/1nRONMv3DgS7Ucfi-suK1-pe2xS4-I2Rr/view?usp=sharing",
+      "drawio": "https://app.diagrams.net/#G1nRONMv3DgS7Ucfi-suK1-pe2xS4-I2Rr"
+    },
+    "ticketLifecycle": {
+      "name": "03-ticket-lifecycle.drawio",
+      "local": "Architecture/Diagrams/03-ticket-lifecycle.drawio",
+      "url": "https://drive.google.com/file/d/1CIwYu35JggJrFlCuCfHi14dWIx6QPy5A/view?usp=sharing",
+      "drawio": "https://app.diagrams.net/#G1CIwYu35JggJrFlCuCfHi14dWIx6QPy5A"
+    },
+    "authAuthorization": {
+      "name": "04-auth-authorization.drawio",
+      "local": "Architecture/Diagrams/04-auth-authorization.drawio",
+      "url": "https://drive.google.com/file/d/1ow3DbZUS9N55-EruO6dI4RNs5GOBpaGZ/view?usp=sharing",
+      "drawio": "https://app.diagrams.net/#G1ow3DbZUS9N55-EruO6dI4RNs5GOBpaGZ"
+    },
+    "dataModel": {
+      "name": "05-data-model.drawio",
+      "local": "Architecture/Diagrams/05-data-model.drawio",
+      "url": "https://drive.google.com/file/d/1eaJNiTskUaMA3WtgHKbh0d-iR_KMSgxl/view?usp=sharing",
+      "drawio": "https://app.diagrams.net/#G1eaJNiTskUaMA3WtgHKbh0d-iR_KMSgxl"
+    },
+    "delivery": {
+      "name": "06-delivery-v1.drawio",
+      "local": "Architecture/Diagrams/06-delivery-v1.drawio",
+      "url": "https://drive.google.com/file/d/1Q6qmLzRb1ATT6hdJP9k2FzkziP4ux4u3/view?usp=sharing",
+      "drawio": "https://app.diagrams.net/#G1Q6qmLzRb1ATT6hdJP9k2FzkziP4ux4u3"
+    }
+  },
+  "legacy": {
+    "v1_0_functional": {
+      "url": "https://drive.google.com/file/d/13eKRBr-0M4_cjJZoVDFFNXz9J4yi4shc/view?usp=sharing"
+    }
+  }
 }
