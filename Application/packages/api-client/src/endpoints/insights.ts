@@ -1,0 +1,2 @@
+// insights endpoints
+export {};

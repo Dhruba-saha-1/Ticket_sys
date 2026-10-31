@@ -1,0 +1,1 @@
+// Zod-validated env (MONGODB_URI, JWT_*, SMTP_*, MAIL_FROM, APP_ORIGIN, API_ORIGIN, BOOTSTRAP_*)

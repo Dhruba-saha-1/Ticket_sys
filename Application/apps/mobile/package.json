@@ -1,0 +1,12 @@
+{
+  "name": "@ticketing/mobile",
+  "private": true,
+  "main": "App.tsx",
+  "scripts": {
+    "start": "expo start"
+  },
+  "dependencies": {
+    "@ticketing/api-client": "workspace:*",
+    "@ticketing/shared": "workspace:*"
+  }
+}

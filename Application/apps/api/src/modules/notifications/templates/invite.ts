@@ -1,0 +1,1 @@
+// user.invited email template

@@ -1,0 +1,2 @@
+// Shared TS types
+export {};
