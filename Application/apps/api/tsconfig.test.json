@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "declaration": false,
+    "types": ["node", "jest"],
+    "paths": { "@ticketing/shared": ["../../packages/shared/src/index.ts"] }
+  },
+  "include": ["src", "tests"]
+}

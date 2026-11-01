@@ -19,3 +19,6 @@ export const can = (
   actor: 'super_admin' | ProjectRole,
   perm: keyof typeof PERMISSIONS,
 ) => (PERMISSIONS[perm] as readonly string[]).includes(actor);
+
+export type Actor = 'super_admin' | ProjectRole;
+export type Permission = keyof typeof PERMISSIONS;

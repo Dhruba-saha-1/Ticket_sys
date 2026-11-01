@@ -20,7 +20,9 @@ services:
     ports: ["4000:4000"]
     depends_on: [mongo, mailpit]
 
+  # Not runnable until the web screens land: docker compose --profile web up
   web:
+    profiles: [web]
     build: { context: ., dockerfile: apps/web/Dockerfile }
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:4000/api/v1
