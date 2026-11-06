@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { createApp } from '../../src/app';
 import { InviteToken, User } from '../../src/models';
-import * as authService from '../../src/modules/auth/auth.service';
+import * as authService from '../../src/services/auth.service';
 import { useTestDb } from '../helpers/db';
 import { createUser, refreshCookieHeader } from '../helpers/fixtures';
 import { mailTo, tokenFromMail, useFakeMail } from '../helpers/mail';

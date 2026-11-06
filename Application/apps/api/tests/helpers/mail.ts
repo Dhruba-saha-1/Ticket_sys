@@ -1,5 +1,5 @@
-import { configureMailer, flushMail, type MailMessage } from '../../src/modules/notifications/mailer';
-import { registerNotificationSubscribers } from '../../src/modules/notifications/notifications.subscribers';
+import { configureMailer, flushMail, type MailMessage } from '../../src/services/mail.service';
+import { registerNotificationSubscribers } from '../../src/subscribers/notification.subscriber';
 
 export type SentMail = MailMessage & { from: string };
 

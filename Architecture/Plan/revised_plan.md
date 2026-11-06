@@ -119,7 +119,7 @@ One small **VPS** (Hostinger KVM preferred; GoDaddy VPS is fine) runs both Next.
 ### Principles
 
 - **One backend for all clients.** All business rules live in the Node API. Next.js is the web UI only.
-- **Modular monolith.** One deployable API, modules talk only through services (`eslint-plugin-boundaries`).
+- **Modular monolith.** One deployable API, layered routes → controllers → services → models; features talk to each other only through services (`eslint-plugin-boundaries` enforces the layers).
 - **Project-scoped security.** Every project request resolves the caller's role *in that project*. Super Admin is treated as Project Head for authorization even without a membership row.
 - **Shared contracts.** Types, enums, Zod schemas, permission matrix, and error codes live in `packages/shared`.
 - **Resource rules in the service.** `can(role, perm)` is not enough. “Own ticket”, “assigned to me”, and `customerSeesAllTickets` are enforced in the service layer.
@@ -136,17 +136,15 @@ ticketing/
 │   ├── mobile/             React Native (Expo) — scaffold in v1, ship later
 │   └── api/                Node.js + Express + Mongoose
 │       └── src/
-│           ├── modules/
-│           │   ├── auth/
-│           │   ├── projects/
-│           │   ├── users/
-│           │   ├── memberships/
-│           │   ├── tickets/
-│           │   ├── insights/
-│           │   └── notifications/  events → Nodemailer (in-process)
-│           ├── middleware/         authenticate · projectRole · authorize · validate
+│           ├── routes/             URL → middleware → controller
+│           ├── controllers/        HTTP only; call services
+│           ├── services/           business rules · auth · user · membership · project · ticket · insight · mail
 │           ├── models/             User · Project · ProjectMember · Ticket · tokens
+│           ├── middlewares/        authenticate · projectRole · authorize · validate
 │           ├── events/             in-process event bus
+│           ├── subscribers/        notifications: events → Nodemailer (in-process)
+│           ├── templates/emails/
+│           ├── utils/
 │           └── config/
 ├── packages/
 │   ├── shared/             enums, TS types, Zod schemas, permissions.ts, errors.ts
@@ -579,7 +577,7 @@ The domain is small and tightly linked (projects ↔ members ↔ tickets). One d
 
 ### Safeguards from day one
 
-- Modules own their collections. No cross-module `populate`/`$lookup`; call the other module's service.
+- Each service owns its collections. No cross-feature `populate`/`$lookup`; call the other feature's service.
 - Internal events (`user.invited`, `ticket.assigned`, `ticket.status_changed`) on an in-process bus. Notifications subscribe here.
 - Email is in-process in v1 (no extra worker process, no extra bill).
 - Stateless API (JWT, no in-memory sessions).

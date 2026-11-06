@@ -1,1 +1,0 @@
-// tickets collection (§7)

@@ -1,17 +1,12 @@
 import { Router } from 'express';
-import {
-  acceptInviteSchema,
-  changePasswordSchema,
-  forgotPasswordSchema,
-  loginSchema,
-  resetPasswordSchema,
-} from '@ticketing/shared';
-import { asyncHandler } from '../../lib/asyncHandler';
-import { authenticate } from '../../middleware/authenticate';
-import { authLimiter, userLimiters } from '../../middleware/rateLimit';
-import { validate } from '../../middleware/validate';
-import * as controller from './auth.controller';
+import { acceptInviteSchema, forgotPasswordSchema, loginSchema, resetPasswordSchema } from '@ticketing/shared';
+import { asyncHandler } from '../utils/http';
+import { authenticate } from '../middlewares/authenticate';
+import { authLimiter } from '../middlewares/rateLimit';
+import { validate } from '../middlewares/validate';
+import * as controller from '../controllers/auth.controller';
 
+/** Mounted at /api/v1/auth */
 export const authRouter = Router();
 
 authRouter.post('/login', authLimiter, validate({ body: loginSchema }), asyncHandler(controller.login));
@@ -35,9 +30,3 @@ authRouter.post(
   validate({ body: acceptInviteSchema }),
   asyncHandler(controller.acceptInvite),
 );
-
-export const meRouter = Router();
-
-meRouter.use(authenticate, ...userLimiters);
-meRouter.get('/', asyncHandler(controller.me));
-meRouter.patch('/password', validate({ body: changePasswordSchema }), asyncHandler(controller.changePassword));

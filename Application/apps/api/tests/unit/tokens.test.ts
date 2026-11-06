@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
-import { AppError } from '../../src/lib/AppError';
-import { generateOpaqueToken, hashToken, signAccessToken, verifyAccessToken } from '../../src/lib/tokens';
+import { AppError } from '../../src/utils/AppError';
+import { generateOpaqueToken, hashToken, signAccessToken, verifyAccessToken } from '../../src/utils/tokens';
 
 describe('access tokens', () => {
   it('round-trips { sub, isSuperAdmin }', () => {

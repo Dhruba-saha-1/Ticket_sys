@@ -1,5 +1,6 @@
 {
+  // Editor, typecheck and Jest. Builds use tsconfig.build.json.
   "extends": "../../tsconfig.base.json",
-  "compilerOptions": { "outDir": "dist", "rootDir": "src" },
-  "include": ["src"]
+  "compilerOptions": { "noEmit": true, "types": ["jest"] },
+  "include": ["src", "tests"]
 }

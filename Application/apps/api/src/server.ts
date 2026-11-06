@@ -2,7 +2,7 @@ import { createApp } from './app';
 import { connectDb, disconnectDb } from './config/db';
 import { env } from './config/env';
 import { logger } from './config/logger';
-import { registerNotificationSubscribers } from './modules/notifications/notifications.subscribers';
+import { registerNotificationSubscribers } from './subscribers/notification.subscriber';
 
 async function main(): Promise<void> {
   await connectDb();
@@ -21,6 +21,10 @@ async function main(): Promise<void> {
   process.on('SIGTERM', () => shutdown('SIGTERM'));
   process.on('SIGINT', () => shutdown('SIGINT'));
 }
+
+process.on('unhandledRejection', (reason) => {
+  logger.error({ err: reason }, 'Unhandled promise rejection');
+});
 
 main().catch((err: unknown) => {
   logger.fatal({ err }, 'Failed to start API');

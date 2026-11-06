@@ -1,4 +1,4 @@
-import { configureMailer, sendMail } from '../../src/modules/notifications/mailer';
+import { configureMailer, sendMail } from '../../src/services/mail.service';
 
 const message = { to: 'a@example.com', subject: 'Hi', text: 'Hi', html: '<p>Hi</p>' };
 

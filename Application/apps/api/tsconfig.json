@@ -1,5 +1,12 @@
 {
+  // Editor, typecheck and Jest: covers src + tests. Builds use tsconfig.build.json.
   "extends": "../../tsconfig.base.json",
-  "compilerOptions": { "outDir": "dist", "rootDir": "src", "types": ["node"], "declaration": false },
-  "include": ["src"]
+  "compilerOptions": {
+    "noEmit": true,
+    "declaration": false,
+    "types": ["node", "jest"],
+    // Resolve shared from source so tests and the editor never need a prior build.
+    "paths": { "@ticketing/shared": ["../../packages/shared/src/index.ts"] }
+  },
+  "include": ["src", "tests"]
 }

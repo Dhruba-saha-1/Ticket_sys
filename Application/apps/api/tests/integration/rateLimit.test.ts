@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { createApp } from '../../src/app';
-import { setRateLimitEnabled } from '../../src/middleware/rateLimit';
+import { setRateLimitEnabled } from '../../src/middlewares/rateLimit';
 import { useTestDb } from '../helpers/db';
 
 useTestDb();

@@ -1,6 +1,6 @@
 import type { RequestHandler } from 'express';
 import { can, type Permission } from '@ticketing/shared';
-import { AppError } from '../lib/AppError';
+import { AppError } from '../utils/AppError';
 
 /** Coarse permission check against the shared matrix. Resource rules live in services. */
 export const authorize =

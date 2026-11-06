@@ -1,6 +1,6 @@
 import { isValidObjectId } from 'mongoose';
 import type { UserDTO } from '@ticketing/shared';
-import { User, type UserDoc } from '../../models';
+import { User, type UserDoc } from '../models';
 
 export function toUserDTO(user: UserDoc): UserDTO {
   return {

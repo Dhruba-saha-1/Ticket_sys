@@ -3,7 +3,7 @@ module.exports = {
   testEnvironment: 'node',
   roots: ['<rootDir>/tests'],
   setupFiles: ['<rootDir>/tests/setup/env.ts'],
-  transform: { '^.+\\.ts$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.test.json' }] },
+  transform: { '^.+\\.ts$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.json' }] },
   moduleNameMapper: { '^@ticketing/shared$': '<rootDir>/../../packages/shared/src/index.ts' },
   testTimeout: 30000,
 };

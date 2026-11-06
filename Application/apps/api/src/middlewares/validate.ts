@@ -1,6 +1,6 @@
 import type { RequestHandler } from 'express';
 import type { ZodTypeAny } from 'zod';
-import { AppError } from '../lib/AppError';
+import { AppError } from '../utils/AppError';
 
 interface RequestSchemas {
   params?: ZodTypeAny;

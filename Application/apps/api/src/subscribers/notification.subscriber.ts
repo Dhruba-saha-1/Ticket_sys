@@ -1,8 +1,8 @@
-import { appUrl } from '../../config/env';
-import { bus } from '../../events/bus';
-import { sendMail } from './mailer';
-import { inviteEmail } from './templates/invite';
-import { passwordResetEmail } from './templates/passwordReset';
+import { appUrl } from '../config/env';
+import { bus } from '../events/bus';
+import { sendMail } from '../services/mail.service';
+import { inviteEmail } from '../templates/emails/invite';
+import { passwordResetEmail } from '../templates/emails/passwordReset';
 
 let registered = false;
 

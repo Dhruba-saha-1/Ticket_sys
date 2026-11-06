@@ -1,7 +1,7 @@
 import type { Request } from 'express';
-import { AppError } from '../lib/AppError';
-import { asyncHandler } from '../lib/asyncHandler';
-import * as membershipsService from '../modules/memberships/memberships.service';
+import { AppError } from '../utils/AppError';
+import { asyncHandler } from '../utils/http';
+import * as membershipService from '../services/membership.service';
 
 type ProjectIdResolver = (req: Request) => string | undefined | Promise<string | undefined>;
 
@@ -19,7 +19,7 @@ export const loadProjectRole = (getProjectId: ProjectIdResolver = (req) => req.p
     }
 
     const projectId = await getProjectId(req);
-    const role = projectId ? await membershipsService.getRole(projectId, req.user.id) : null;
+    const role = projectId ? await membershipService.getRole(projectId, req.user.id) : null;
     if (!role) throw new AppError('FORBIDDEN', 'You are not a member of this project');
 
     req.role = role;

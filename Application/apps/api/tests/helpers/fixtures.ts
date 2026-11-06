@@ -1,6 +1,6 @@
 import type { Response } from 'supertest';
-import { hashPassword } from '../../src/lib/password';
-import { signAccessToken } from '../../src/lib/tokens';
+import { hashPassword } from '../../src/utils/password';
+import { signAccessToken } from '../../src/utils/tokens';
 import { User, type UserDoc } from '../../src/models';
 
 export const DEFAULT_PASSWORD = 'Password123!';

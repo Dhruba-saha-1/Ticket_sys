@@ -6,14 +6,14 @@ import type {
   ResetPasswordInput,
   UserDTO,
 } from '@ticketing/shared';
-import { logger } from '../../config/logger';
-import { bus } from '../../events/bus';
-import { AppError } from '../../lib/AppError';
-import { hashPassword, verifyAgainstDummy, verifyPassword } from '../../lib/password';
-import { generateOpaqueToken, hashToken, signAccessToken } from '../../lib/tokens';
-import { InviteToken, PasswordResetToken, RefreshToken, type RevokeReason, type UserDoc } from '../../models';
-import * as membershipsService from '../memberships/memberships.service';
-import * as usersService from '../users/users.service';
+import { logger } from '../config/logger';
+import { bus } from '../events/bus';
+import { InviteToken, PasswordResetToken, RefreshToken, type RevokeReason, type UserDoc } from '../models';
+import { AppError } from '../utils/AppError';
+import { hashPassword, verifyAgainstDummy, verifyPassword } from '../utils/password';
+import { generateOpaqueToken, hashToken, signAccessToken } from '../utils/tokens';
+import * as membershipService from './membership.service';
+import * as userService from './user.service';
 
 const HOUR_MS = 60 * 60 * 1000;
 export const REFRESH_TOKEN_TTL_MS = 14 * 24 * HOUR_MS;
@@ -45,7 +45,7 @@ async function issueSession(user: UserDoc, ctx: SessionContext): Promise<Session
     accessToken: signAccessToken({ sub: user.id, isSuperAdmin: user.isSuperAdmin }),
     refreshToken,
     refreshExpiresAt,
-    user: usersService.toUserDTO(user),
+    user: userService.toUserDTO(user),
   };
 }
 
@@ -55,7 +55,7 @@ export async function revokeAllSessions(userId: string, reason: RevokeReason = '
 }
 
 export async function login({ email, password }: LoginInput, ctx: SessionContext): Promise<Session> {
-  const user = await usersService.findByEmailWithPassword(email);
+  const user = await userService.findByEmailWithPassword(email);
   const valid = user?.passwordHash
     ? await verifyPassword(user.passwordHash, password)
     : await verifyAgainstDummy(password);
@@ -89,7 +89,7 @@ export async function refresh(token: string | undefined, ctx: SessionContext): P
 
   if (current.expiresAt <= now) throw new AppError('UNAUTHENTICATED', 'Refresh token expired');
 
-  const user = await usersService.findActiveById(current.userId.toString());
+  const user = await userService.findActiveById(current.userId.toString());
   if (!user) throw new AppError('UNAUTHENTICATED', 'User is not active');
 
   return issueSession(user, ctx);
@@ -123,7 +123,7 @@ export async function acceptInvite({ token, password }: AcceptInviteInput, ctx: 
   );
   if (!invite) throw new AppError('INVALID_TOKEN', 'Invite link is invalid or has expired');
 
-  const user = await usersService.activateWithPassword(invite.userId.toString(), await hashPassword(password));
+  const user = await userService.activateWithPassword(invite.userId.toString(), await hashPassword(password));
   if (!user) throw new AppError('INVALID_TOKEN', 'Invite link is invalid or has expired');
 
   return issueSession(user, ctx);
@@ -131,7 +131,7 @@ export async function acceptInvite({ token, password }: AcceptInviteInput, ctx: 
 
 /** Always succeeds from the caller's point of view so emails cannot be enumerated. */
 export async function requestPasswordReset(email: string): Promise<void> {
-  const user = await usersService.findByEmail(email);
+  const user = await userService.findByEmail(email);
   if (!user || user.status !== 'active') return;
 
   await PasswordResetToken.deleteMany({ userId: user._id, usedAt: null });
@@ -157,18 +157,18 @@ export async function resetPassword({ token, password }: ResetPasswordInput, ctx
   );
   if (!reset) throw new AppError('INVALID_TOKEN', 'Reset link is invalid or has expired');
 
-  const user = await usersService.findActiveById(reset.userId.toString());
+  const user = await userService.findActiveById(reset.userId.toString());
   if (!user) throw new AppError('INVALID_TOKEN', 'Reset link is invalid or has expired');
 
-  await usersService.setPassword(user.id, await hashPassword(password));
+  await userService.setPassword(user.id, await hashPassword(password));
   await revokeAllSessions(user.id);
   return issueSession(user, ctx);
 }
 
 export async function getMe(userId: string): Promise<MeResponse> {
-  const user = await usersService.findById(userId);
+  const user = await userService.findById(userId);
   if (!user) throw new AppError('NOT_FOUND', 'User not found');
-  return { user: usersService.toUserDTO(user), memberships: await membershipsService.listForUser(userId) };
+  return { user: userService.toUserDTO(user), memberships: await membershipService.listForUser(userId) };
 }
 
 /** Changes the password, signs out every other session and returns a fresh one. */
@@ -177,12 +177,12 @@ export async function changePassword(
   { currentPassword, newPassword }: ChangePasswordInput,
   ctx: SessionContext,
 ): Promise<Session> {
-  const user = await usersService.findByIdWithPassword(userId);
+  const user = await userService.findByIdWithPassword(userId);
   if (!user?.passwordHash || !(await verifyPassword(user.passwordHash, currentPassword))) {
     throw new AppError('VALIDATION_ERROR', 'Current password is incorrect');
   }
 
-  await usersService.setPassword(userId, await hashPassword(newPassword));
+  await userService.setPassword(userId, await hashPassword(newPassword));
   await revokeAllSessions(userId);
   return issueSession(user, ctx);
 }

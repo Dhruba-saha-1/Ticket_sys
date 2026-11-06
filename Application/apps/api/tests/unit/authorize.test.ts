@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
-import { AppError } from '../../src/lib/AppError';
-import { authorize, requireSuperAdmin } from '../../src/middleware/authorize';
+import { AppError } from '../../src/utils/AppError';
+import { authorize, requireSuperAdmin } from '../../src/middlewares/authorize';
 
 const run = (handler: (req: Request, res: Response, next: NextFunction) => void, req: Partial<Request>) => {
   const next = jest.fn();

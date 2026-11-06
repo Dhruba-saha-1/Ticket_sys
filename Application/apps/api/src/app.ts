@@ -1,13 +1,13 @@
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import express, { Router, type Express } from 'express';
+import express, { type Express } from 'express';
 import helmet from 'helmet';
 import { pinoHttp } from 'pino-http';
 import { env } from './config/env';
 import { logger } from './config/logger';
-import { errorHandler, notFoundHandler } from './middleware/errorHandler';
-import { requestId } from './middleware/requestId';
-import { authRouter, meRouter } from './modules/auth/auth.routes';
+import { errorHandler, notFoundHandler } from './middlewares/errorHandler';
+import { requestId } from './middlewares/requestId';
+import { apiRouter } from './routes';
 
 export function createApp(): Express {
   const app = express();
@@ -28,13 +28,7 @@ export function createApp(): Express {
   app.use(express.json({ limit: '100kb' }));
   app.use(cookieParser());
 
-  const api = Router();
-  api.get('/health', (_req, res) => {
-    res.json({ status: 'ok' });
-  });
-  api.use('/auth', authRouter);
-  api.use('/me', meRouter);
-  app.use('/api/v1', api);
+  app.use('/api/v1', apiRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

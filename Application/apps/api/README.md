@@ -39,6 +39,58 @@ Locally, every email (invites, password resets) is caught by Mailpit. Open <http
 
 ---
 
+## Viewing the database
+
+Local data lives in the `ticketing` database of the `mongo` container. The connection string is `mongodb://localhost:27017`.
+
+| Collection | What |
+|---|---|
+| `users` | Accounts (`isSuperAdmin`, `status`) |
+| `projectMembers` | A user's role in each project |
+| `refreshTokens` | Login sessions |
+| `inviteTokens`, `passwordResetTokens` | Pending invite and reset links |
+
+### GUI: MongoDB Compass
+
+1. Install it from <https://www.mongodb.com/products/compass>, or with `brew install --cask mongodb-compass`.
+2. Connect to `mongodb://localhost:27017`.
+3. Open the **ticketing** database to browse, filter and edit documents.
+
+### VS Code
+
+Install the **MongoDB for VS Code** extension and add a connection with `mongodb://localhost:27017`. You can browse collections in the sidebar or run queries from a playground file.
+
+### Command line (nothing to install)
+
+From `Application/`:
+
+```sh
+docker compose exec mongo mongosh ticketing
+```
+
+```js
+show collections
+db.users.find({}, { passwordHash: 0 })              // all users, password hash hidden
+db.users.findOne({ email: 'admin@ticketing.local' })
+db.refreshTokens.find().sort({ createdAt: -1 }).limit(5)
+db.projectMembers.find({ role: 'member' })
+exit
+```
+
+One-off query without opening the shell:
+
+```sh
+docker compose exec mongo mongosh ticketing --quiet --eval 'db.users.find({}, {passwordHash:0})'
+```
+
+### Good to know
+
+- Passwords and tokens are stored only as hashes. You can't read an invite or reset link from the database, so open the email in Mailpit instead.
+- `docker compose down -v` deletes all local data (the `mongo-data` volume). Run `pnpm seed` afterwards to recreate the Super Admin.
+- Tests use their own temporary in-memory database and never touch this one.
+
+---
+
 ## Scripts
 
 Run with `pnpm <script>` from this folder, or `pnpm --filter @ticketing/api <script>` from `Application/`.
@@ -137,20 +189,80 @@ pnpm test -- --watch                               # re-run on change
 
 ```
 src/
-├── app.ts              Express app (middleware + routes under /api/v1)
-├── server.ts           Entry point: connect DB, register email subscribers, listen
-├── config/             env validation, MongoDB connection, logger
-├── lib/                AppError, token and password helpers
-├── middleware/         authenticate · loadProjectRole · authorize · validate · rate limits · errors
-├── models/             Mongoose models
-├── events/             In-process event bus
-├── modules/            One folder per feature: routes → controller → service
-│   ├── auth/  users/  memberships/  projects/  tickets/  insights/
-│   └── notifications/  mailer + email templates
-└── scripts/seed.ts     First Super Admin
+├── server.ts             Process entry: connect DB, register subscribers, listen, graceful shutdown
+├── app.ts                Express app: security + parsing middleware, /api/v1, error handler
+├── config/               env.ts (validated env) · db.ts · logger.ts
+├── routes/               URL → middleware → controller. index.ts mounts every router
+│   ├── index.ts
+│   ├── auth.routes.ts    /auth/*
+│   ├── me.routes.ts      /me, /me/password
+│   └── user · project · membership · ticket · insight .routes.ts
+├── controllers/          HTTP only: read req, call a service, send the response
+│   └── auth · user · project · membership · ticket · insight .controller.ts
+├── services/             Business logic and rules; the only layer that uses models
+│   ├── auth.service.ts
+│   ├── user.service.ts · membership.service.ts · project · ticket · insight
+│   └── mail.service.ts   Nodemailer with retries
+├── models/               Mongoose schemas (index.ts re-exports them)
+│   └── user · projectMember · refreshToken · inviteToken · passwordResetToken · project · ticket .model.ts
+├── middlewares/          authenticate · loadProjectRole · authorize · validate · rateLimit · requestId · errorHandler
+├── events/               In-process event bus + event payload types
+├── subscribers/          React to events (notification.subscriber.ts sends emails)
+├── templates/emails/     Email bodies (invite, password reset, …)
+├── utils/                AppError · http (asyncHandler, BodyRequest) · tokens · password · cookies
+├── types/express.d.ts    req.user / req.role typings
+└── scripts/seed.ts       First Super Admin
 ```
 
-**Module rule:** a module may import another module **only through its `*.service.ts`** (or its routes/subscribers). ESLint enforces this (`pnpm lint`).
+### Request flow
+
+```
+routes/index.ts → routes/<name>.routes.ts
+  → middlewares: authenticate → loadProjectRole → authorize(perm) → validate(schema)
+  → controllers/<name>.controller.ts
+  → services/<name>.service.ts
+  → models/<name>.model.ts
+errors at any step → AppError → middlewares/errorHandler → { error: { code, message } }
+```
+
+A service that changes something important emits an event (`events/bus.ts`). Subscribers in `subscribers/` listen for it and send emails, so the request never waits for SMTP.
+
+### Rules (enforced by `pnpm lint`)
+
+Each folder may import only the folders listed here:
+
+| Folder | May import |
+|---|---|
+| `routes/` | controllers, middlewares, utils |
+| `controllers/` | services, middlewares, utils, config |
+| `services/` | services, models, events, utils, config |
+| `models/` | models |
+| `middlewares/` | services, utils, config |
+| `subscribers/` | services, events, templates, config |
+| `events/` | config |
+| `utils/` | config |
+
+In practice:
+- **Routes** only wire URLs to middleware and controllers.
+- **Controllers** never touch models. Business rules, checks on specific records and database access belong in services.
+- **Services** are where data is read and written.
+- **Never use `req.user!`.** Use `currentUser(req)` from `middlewares/authenticate`. Type validated bodies with `BodyRequest<T>` from `utils/http`.
+
+### Adding a feature
+
+1. Model: `models/<name>.model.ts`, then export it from `models/index.ts`.
+2. Request schemas (Zod) and response types go in `packages/shared`, so the web app uses the same ones.
+3. Service: `services/<name>.service.ts`.
+4. Controller: `controllers/<name>.controller.ts`.
+5. Routes: `routes/<name>.routes.ts`, then mount it in `routes/index.ts`.
+6. Tests: `tests/integration/<name>.*.test.ts`.
+
+### TypeScript configs
+
+| File | Used by |
+|---|---|
+| `tsconfig.json` | Editor, `pnpm typecheck` and Jest. Covers `src` + `tests` and reads `@ticketing/shared` from source. |
+| `tsconfig.build.json` | `pnpm build`: compiles `src` only to `dist/` |
 
 ---
 

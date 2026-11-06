@@ -1,6 +1,7 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
-import * as models from '../../src/models';
+// Importing the models registers them with mongoose.
+import '../../src/models';
 
 let mongo: MongoMemoryServer | undefined;
 
@@ -8,7 +9,7 @@ export async function startDb(): Promise<void> {
   mongo = await MongoMemoryServer.create();
   await mongoose.connect(mongo.getUri());
   // Build unique / TTL indexes before tests rely on them.
-  await Promise.all(Object.values(models).filter((m) => typeof m === 'function' && 'init' in m).map((m) => (m as typeof mongoose.Model).init()));
+  await Promise.all(Object.values(mongoose.models).map((model) => model.init()));
 }
 
 export async function clearDb(): Promise<void> {
